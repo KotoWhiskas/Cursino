@@ -1,21 +1,35 @@
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
 
+#include "ncurses_model.h"
+
+#include <vector>
+#include <map>
+#include <string>
+
 class EventLoop
 {
+public:
+    enum class Direction
+    {
+        x,
+        y,
+    };
+
 private:
-    unsigned int m_refreshRate;
+    std::map<std::string, NcursesModel> m_models;
 
 public:
 
     EventLoop();
 
-    void setRefreshRate(unsigned int refreshRate) { m_refreshRate = refreshRate; };
-    void addModel();
-    void removeModel();
-    void addEvent();
-    void removeEvent();
-    void onAnyKeyPressed();
+    void addModel(const NcursesModel& model, const std::string& id) {m_models[id] = model; };
+    void removeModel(const std::string& id) { m_models.erase(id); };
+
+    void addKeyEvent(const std::string& id, const char* key = nullptr);
+    void addMoveEvent(const std::string& id, double speed);
+    void addVectorAnimationEvent(Direction direction, int range, double speed, bool cycle = false);
+    void addMatrixChangeEvent(const std::string& id, double every = 0);
 
     void start();
 };

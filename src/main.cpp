@@ -1,5 +1,6 @@
 #include "dino.h"
 #include "cactus.h"
+#include "util.h"
 
 #include <curses.h>
 #include <memory>
@@ -31,11 +32,6 @@ namespace Random
     }
 
 
-}
-
-void sleep(int ms)
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 

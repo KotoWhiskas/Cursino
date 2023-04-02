@@ -3,6 +3,14 @@
 #include <iostream>
 #include <ncurses.h>
 #include <vector>
+#include <chrono>
+#include <thread>
+
+
+void sleep(int ms)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
 
 void clearMatrix(WINDOW* screen, int x, int y, const std::vector<std::string>& matrix)
 {
