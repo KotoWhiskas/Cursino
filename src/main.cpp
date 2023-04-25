@@ -1,159 +1,71 @@
-#include "dino.h"
-#include "cactus.h"
-#include "util.h"
-
 #include <curses.h>
-#include <memory>
 #include <ncurses.h>
 #include <string>
-#include <array>
-#include <cstddef>
-#include <fstream>
-#include <vector>
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <random>
+#include <cassert>
 
-namespace Random
+#include "util.h"
+#include "event_loop.h"
+#include "dino.h"
+#include "cactus.h"
+
+int main(int argc, const char* argv[])
 {
-    std::mt19937 mt{std::random_device{}()};
-    std::uniform_int_distribution randomCactus{0, 3};
-    std::uniform_int_distribution randomRange{-50, 20};
+    double moveRange{40};
+    int moveSpeed{16};
 
-    int cactus()
+
+    if (argc > 1)
     {
-        return randomCactus(mt);
+        moveSpeed = std::stoi(argv[1]);
+
     }
 
-    int range()
-    {
-        return randomRange(mt);
-    }
+    EventLoop eventLoop{};
+    eventLoop.addModel(Dino{}, "dino", 20, 18);
 
+    eventLoop.onKeyPressed("dino", KEY_UP, [&]() {
+            eventLoop.vectorAnimate("dino", EventLoop::Direction::y, EventLoop::DirectionValue::negative, 16, 30, true);
 
-}
+    } );
 
+    double cactusSpeedIncrease{};
+    int cactusSpawnTimeReduct{};
 
-void print(std::vector<std::string> vec)
-{
-    for (auto i : vec)
-    {
-        std::cout << i << '\n';
-    }
+    static std::size_t index{};
+    static std::string id{"cactus"};
 
-}
-
-void printScore(int score)
-{
-    std::string sscore{std::to_string(score)};
-    int x{10};
-    for (char i : sscore)
-    {
-        mvwaddch(stdscr, 1, x, i);
-        x += 1;
-    }
-
-}
-
-void printGameOver()
-{
-    std::string text{"Game over"};
-
-    int midx{getmaxx(stdscr) / 2};
-    int midy{getmaxy(stdscr) / 2};
-
-    for (int i{}; i < text.length(); ++i)
-    {
-        mvwaddch(stdscr, midy, midx + i, text[i]);
-    }
-}
-
-
-int main()
-{
-    int score{};
-
-    initscr();
-    cbreak();
-    noecho();
-    nodelay(stdscr, true);
-
-
-    Dino dino{stdscr, 10, 20};
-    Cactus cactus{stdscr, 300, 20};
-
-    std::vector<int> dinoAnimation;
-    for (int i{}; i < 17; ++i)
-    {
-        dinoAnimation.push_back(1 - i);
-    }
-    for (int i{16}; i > 0; --i)
-    {
-        dinoAnimation.push_back(1 - i);
-    }
-
-    constexpr int cactusStep{-1};
-
-    int frameCounter{};
-    int ch{};
-
-    bool panic{};
-
-    while (true)
-    {
-
-        if (panic)
+    eventLoop.everyMilliseconds(id, 5 * 1000,
+        [&]()
         {
-            nodelay(stdscr, false);
-            printGameOver();
-            getch();
-            break;
-        }
 
-        ch = getch();
+            index = eventLoop.modelCount();
+            id = "cactus" + std::to_string(index);
 
-        printScore(score);
+            eventLoop.addModel(Cactus{}, id, getmaxx(stdscr) + 10, 17);
+            eventLoop.getModel(id).setCurrentFrameNum(getRandom(0, 3));
 
-        dino.clearPrevious();
-        cactus.clearPrevious();
+            eventLoop.onModelMovedTo(id, -10, eventLoop.getModel(id).y(), [&](){ eventLoop.removeModel(id); });
+            eventLoop.destAnimate(id, -10, eventLoop.getModel(id).y(), 4. - cactusSpeedIncrease);
+            eventLoop.show(id);
 
-        cactus.move(cactus.x() - 1, cactus.y());
-        cactus.print();
-
-        if (cactus.x() < -10)
-        {
-            cactus.clearPrevious();
-            cactus.move(300, cactus.y());
-            cactus.nextFrame();
-        }
+            cactusSpeedIncrease += 0.2;
+            cactusSpawnTimeReduct += 100;
 
 
 
+        }, &cactusSpawnTimeReduct
+    );
 
-        if (ch != ERR)
-            dino.applyAnimation(NcursesModel::Coord::y, dinoAnimation);
-
-
-        if ((frameCounter % 15) == 0)
-        {
-            dino.nextFrame();
-            frameCounter = 0;
-            score += 5;
-        }
-        dino.print(&panic, true);
-
-
-
-        ++frameCounter;
-        sleep(16 - (score / 200));
-
+    eventLoop.everyMilliseconds("dino", 200, [&]()
+    {
+        eventLoop.getModel("dino").nextFrame();
     }
+    );
 
 
+    eventLoop.show("dino");
 
-
-    endwin();
+    eventLoop.start();
 
     return 0;
 }
