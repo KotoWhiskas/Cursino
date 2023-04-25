@@ -12,7 +12,7 @@
 class Dino : public NcursesModel
 {
 public:
-    Dino(WINDOW* win, int x, int y);
+    Dino(WINDOW* win = stdscr);
 };
 
 #endif

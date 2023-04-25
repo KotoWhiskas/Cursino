@@ -38,6 +38,14 @@ namespace Frames
             "\\____      ",
             "    / |    "
         };
+
+        inline const dino_matrix_t dinoCrouch
+        {
+            "    ___    ",
+            "   | *  00|",
+            "\\____ >     ",
+            "    / |    "
+        };
     }
 
     namespace Cactus

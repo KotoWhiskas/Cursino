@@ -10,8 +10,7 @@ NcursesModel::NcursesModel(WINDOW* window, frames_vec_t framesVector, int x, int
     : m_frames{framesVector},
       m_x{x}, m_y{y}, m_midX{}, m_midY{},
       m_prevX{x}, m_prevY{y},
-      m_animateEvery{}, m_currentAnimationFrame{},
-      win{window}
+      m_animateEvery{}, m_currentAnimationFrame{}
 {
     m_currentFrameNum = 0;
     m_frameNumber = m_frames.size();
@@ -28,7 +27,7 @@ void NcursesModel::nextFrame()
     }
 }
 
-void NcursesModel::print(bool* panic_status, bool panic)
+void NcursesModel::print(WINDOW* win)
 {
     int x{m_x};
     int y{m_y};
@@ -46,18 +45,18 @@ void NcursesModel::print(bool* panic_status, bool panic)
         ++m_currentAnimationFrame;
     }
 
-    printMatrix(win, x, y, getMatrix(m_currentFrameNum), panic_status, panic);
+    printMatrix(win, x, y, getMatrix(m_currentFrameNum));
 
     m_prevX = x;
     m_prevY = y;
 }
 
-void NcursesModel::clear()
+void NcursesModel::clear(WINDOW* win)
 {
     clearMatrix(win, m_x, m_y, getMatrix(m_currentFrameNum));
 }
 
-void NcursesModel::clearPrevious()
+void NcursesModel::clearPrevious(WINDOW* win)
 {
     clearMatrix(win, m_prevX, m_prevY, getMatrix(m_prevFrameNum));
     m_prevFrameNum = m_currentFrameNum;

@@ -8,7 +8,7 @@
 class Cactus : public NcursesModel
 {
 public:
-    Cactus(WINDOW* win, int x, int y);
+    Cactus(WINDOW* win = stdscr, int x = 20, int y = 20);
 
 };
 

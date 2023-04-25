@@ -4,10 +4,10 @@
 
 #include <ncurses.h>
 
-Dino::Dino(WINDOW* win, int x, int y)
+Dino::Dino(WINDOW* win)
 : NcursesModel{win, {Frames::Dino::dino1,
                      Frames::Dino::dino2,
-                     Frames::Dino::dino3}, x, y}
+                     Frames::Dino::dino3}, 20, 20}
 {
 
 }
